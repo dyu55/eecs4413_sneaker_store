@@ -39,6 +39,12 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String email;
 
+    /**
+     * BCrypt-hashed password used for basic identity management.
+     */
+    @Column(nullable = false)
+    private String passwordHash;
+
     private String phoneNumber;
 
     private String addressLine1;

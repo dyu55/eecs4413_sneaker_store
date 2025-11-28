@@ -14,4 +14,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
      * Finds a customer by their unique email address.
      */
     Optional<Customer> findByEmail(String email);
+
+    /**
+     * Checks if a customer already exists for a given email.
+     */
+    boolean existsByEmail(String email);
 }

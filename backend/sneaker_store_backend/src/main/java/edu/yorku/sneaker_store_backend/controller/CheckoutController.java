@@ -21,6 +21,24 @@ public class CheckoutController {
         this.checkoutService = checkoutService;
     }
 
+    /**
+     * POST /api/checkout
+     * <p>
+     * Expects a payload shaped like:
+     * <pre>
+     * {
+     *   "customerId": 1,
+     *   "items": [
+     *     { "productId": 10, "sku": "AJ1-RED", "quantity": 2 }
+     *   ],
+     *   "shippingAddress": "123 King St, Toronto, ON",
+     *   "billingAddress": "",
+     *   "paymentMethod": "VISA"
+     * }
+     * </pre>
+     * Sends back {@link CheckoutResponseDto} with the generated order number, status, total and
+     * the normalized items list. Validation failures are returned with HTTP 400.
+     */
     @PostMapping
     public ResponseEntity<CheckoutResponseDto> checkout(@RequestBody CheckoutRequestDto request) {
         try {

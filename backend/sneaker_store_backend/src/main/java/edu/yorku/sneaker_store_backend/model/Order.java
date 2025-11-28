@@ -1,5 +1,6 @@
 package edu.yorku.sneaker_store_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,6 +75,7 @@ public class Order {
      * Collection of items purchased in this order.
      */
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 

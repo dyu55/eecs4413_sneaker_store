@@ -40,6 +40,18 @@ public class CheckoutService {
 
     /**
      * Processes the incoming checkout request and persists a new Order aggregate.
+     * <p>
+     * Expected usage:
+     * <ol>
+     *   <li>Populate a {@link CheckoutRequestDto} with the authenticated customer id, cart items
+     *       (each item must reference a product by id or SKU) and optional shipping/billing addresses.</li>
+     *   <li>Invoke this method; the service will validate inventory, decrement stock, compose
+     *       shipping/billing addresses, and persist {@link Order} / {@link OrderItem} entities.</li>
+     *   <li>Read the returned {@link CheckoutResponseDto} for the generated order number, total amount,
+     *       persisted status and normalized item list which can be echoed back to the client UI.</li>
+     * </ol>
+     * Any validation or stock related issues raise {@link IllegalArgumentException} or
+     * {@link IllegalStateException} so controllers can translate them into HTTP 400 responses.
      */
     @Transactional
     public CheckoutResponseDto checkout(CheckoutRequestDto request) {
