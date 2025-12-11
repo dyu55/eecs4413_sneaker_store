@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity class representing a sneaker product in the system.
@@ -57,6 +59,15 @@ public class Sneaker {
     private Integer stock;
 
     /**
+     * Available shoe sizes for this sneaker (e.g., "8", "9.5").
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "sneaker_sizes", joinColumns = @JoinColumn(name = "sneaker_id"))
+    @Column(name = "size", length = 10)
+    @Builder.Default
+    private List<String> availableSizes = new ArrayList<>();
+
+    /**
      * Long description used for product detail pages.
      */
     @Column(length = 1000)
@@ -66,4 +77,12 @@ public class Sneaker {
      * URL pointing to the product image hosted online.
      */
     private String imageUrl;
+
+    /**
+     * Ensures the available sizes list never remains null while still allowing callers to replace
+     * the collection wholesale.
+     */
+    public void setAvailableSizes(List<String> availableSizes) {
+        this.availableSizes = availableSizes != null ? new ArrayList<>(availableSizes) : new ArrayList<>();
+    }
 }

@@ -24,6 +24,7 @@ public class CheckoutItemDto {
 
     private Integer quantity;
 
+    private String size;
+
     private BigDecimal unitPrice;
 }
-

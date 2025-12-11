@@ -50,8 +50,8 @@ public class SneakerService {
         List<Sneaker> base = searchByKeyword(keyword);
 
         return base.stream()
-                .filter(s -> !hasText(brand) || equalsIgnoreCase(s.getBrand(), brand))
-                .filter(s -> !hasText(colorway) || equalsIgnoreCase(s.getColorway(), colorway))
+                .filter(s -> isBlank(brand) || equalsIgnoreCase(s.getBrand(), brand))
+                .filter(s -> isBlank(colorway) || equalsIgnoreCase(s.getColorway(), colorway))
                 .collect(Collectors.toList());
     }
 
@@ -82,6 +82,7 @@ public class SneakerService {
         existing.setColorway(updated.getColorway());
         existing.setPrice(updated.getPrice());
         existing.setStock(updated.getStock());
+        existing.setAvailableSizes(updated.getAvailableSizes());
         existing.setDescription(updated.getDescription());
         existing.setImageUrl(updated.getImageUrl());
         return sneakerRepository.save(existing);
@@ -98,8 +99,8 @@ public class SneakerService {
         return true;
     }
 
-    private boolean hasText(String value) {
-        return value != null && !value.isBlank();
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private boolean equalsIgnoreCase(String value, String target) {

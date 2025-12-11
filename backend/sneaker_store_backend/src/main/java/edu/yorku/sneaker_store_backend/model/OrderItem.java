@@ -1,6 +1,7 @@
 package edu.yorku.sneaker_store_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "order_items")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,6 +46,12 @@ public class OrderItem {
      */
     @Column(nullable = false)
     private Integer quantity;
+
+    /**
+     * Selected shoe size for this item (e.g., Men's 9.5).
+     */
+    @Column(length = 10)
+    private String size;
 
     /**
      * Price charged per unit when the order was placed.

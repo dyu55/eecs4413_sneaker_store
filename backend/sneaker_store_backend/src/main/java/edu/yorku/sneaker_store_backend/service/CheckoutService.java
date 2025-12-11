@@ -120,6 +120,7 @@ public class CheckoutService {
                 .order(order)
                 .product(product)
                 .quantity(quantity)
+                .size(normalizeSize(itemDto.getSize()))
                 .unitPrice(unitPrice)
                 .lineTotal(lineTotal)
                 .build();
@@ -189,8 +190,13 @@ public class CheckoutService {
                         .sku(item.getProduct().getSku())
                         .name(item.getProduct().getName())
                         .quantity(item.getQuantity())
+                        .size(item.getSize())
                         .unitPrice(item.getUnitPrice())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private String normalizeSize(String size) {
+        return hasText(size) ? size.trim() : null;
     }
 }

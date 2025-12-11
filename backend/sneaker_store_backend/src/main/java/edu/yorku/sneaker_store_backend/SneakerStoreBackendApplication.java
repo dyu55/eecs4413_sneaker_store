@@ -55,6 +55,7 @@ public class SneakerStoreBackendApplication {
                         .colorway("Bred")
                         .price(new BigDecimal("240.00"))
                         .stock(25)
+                        .availableSizes(List.of("7", "8", "9", "10", "11", "12"))
                         .description("Iconic Jordan 1 bringing back the premium leather Bred colorway.")
                         .imageUrl("https://static.sneakerstore.local/img/aj1-bred.jpg")
                         .build(),
@@ -64,6 +65,7 @@ public class SneakerStoreBackendApplication {
                         .colorway("Zebra")
                         .price(new BigDecimal("300.00"))
                         .stock(18)
+                        .availableSizes(List.of("6", "7", "8", "9", "10", "11"))
                         .description("Primeknit upper with the instantly recognizable Zebra pattern.")
                         .imageUrl("https://static.sneakerstore.local/img/yeezy-350-v2.jpg")
                         .build(),
@@ -73,6 +75,7 @@ public class SneakerStoreBackendApplication {
                         .colorway("Black/White")
                         .price(new BigDecimal("140.00"))
                         .stock(40)
+                        .availableSizes(List.of("5", "6", "7", "8", "9", "10"))
                         .description("Everyday staple Dunk Low dressed in the versatile Panda blocking.")
                         .imageUrl("https://static.sneakerstore.local/img/dunk-low-panda.jpg")
                         .build(),
@@ -82,6 +85,7 @@ public class SneakerStoreBackendApplication {
                         .colorway("White/Grey")
                         .price(new BigDecimal("150.00"))
                         .stock(32)
+                        .availableSizes(List.of("7", "8", "9", "10", "11", "12"))
                         .description("Retro basketball-inspired silhouette with leather overlays.")
                         .imageUrl("https://static.sneakerstore.local/img/nb-550.jpg")
                         .build()
