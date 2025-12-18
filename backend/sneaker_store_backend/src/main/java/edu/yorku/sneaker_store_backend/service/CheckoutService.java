@@ -10,6 +10,7 @@ import edu.yorku.sneaker_store_backend.model.Product;
 import edu.yorku.sneaker_store_backend.repository.CustomerRepository;
 import edu.yorku.sneaker_store_backend.repository.OrderRepository;
 import edu.yorku.sneaker_store_backend.repository.ProductRepository;
+import edu.yorku.sneaker_store_backend.repository.SneakerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +32,20 @@ public class CheckoutService {
     private final OrderRepository orderRepository;
     private final InventoryHistoryService inventoryHistoryService;
     private final CartService cartService;
+    private final SneakerRepository sneakerRepository;
 
     public CheckoutService(ProductRepository productRepository,
                            CustomerRepository customerRepository,
                            OrderRepository orderRepository,
                            InventoryHistoryService inventoryHistoryService,
-                           CartService cartService) {
+                           CartService cartService,
+                           SneakerRepository sneakerRepository) {
         this.productRepository = productRepository;
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
         this.inventoryHistoryService = inventoryHistoryService;
         this.cartService = cartService;
+        this.sneakerRepository = sneakerRepository;
     }
 
     /**
@@ -140,6 +144,7 @@ public class CheckoutService {
 
         int newStock = currentStock - quantity;
         product.setStockQuantity(newStock);
+        syncSneakerInventory(product, newStock);
         saleAdjustments.add(new SaleAdjustment(product, currentStock, newStock, quantity));
         BigDecimal unitPrice = product.getPrice();
         BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
@@ -263,6 +268,16 @@ public class CheckoutService {
 
     private String normalizeSize(String size) {
         return hasText(size) ? size.trim() : null;
+    }
+
+    private void syncSneakerInventory(Product product, int newStock) {
+        if (product.getId() == null) {
+            return;
+        }
+        sneakerRepository.findById(product.getId()).ifPresent(sneaker -> {
+            sneaker.setStock(newStock);
+            sneakerRepository.save(sneaker);
+        });
     }
 
     private record SaleAdjustment(Product product, int previousStock, int newStock, int quantity) {

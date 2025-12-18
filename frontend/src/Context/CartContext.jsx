@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // Create context
 export const CartContext = createContext(null);
@@ -11,21 +11,22 @@ const CartContextProvider = ({ children }) => {
 	// Current cart (no login required)
 	const [cart, setCart] = useState({});
 
-	// Fetch products once
-	useEffect(() => {
-		const fetchProducts = async () => {
-			try {
-				const res = await fetch('http://localhost:8080/api/sneakers');
-				const data = await res.json();
-				const products = data.map((p) => ({ ...p, id: String(p.id), price: parseFloat(p.price) }));
-				setAllProduct(products);
-				console.log('[Debug] Fetched products:', products);
-			} catch (err) {
-				console.error('[Debug] Failed to fetch products:', err);
-			}
-		};
-		fetchProducts();
+	const fetchProducts = useCallback(async () => {
+		try {
+			const res = await fetch('http://localhost:8080/api/sneakers');
+			const data = await res.json();
+			const products = data.map((p) => ({ ...p, id: String(p.id), price: parseFloat(p.price) }));
+			setAllProduct(products);
+			console.log('[Debug] Fetched products:', products);
+		} catch (err) {
+			console.error('[Debug] Failed to fetch products:', err);
+		}
 	}, []);
+
+	// Fetch products once on mount (and allow manual refresh via context)
+	useEffect(() => {
+		fetchProducts();
+	}, [fetchProducts]);
 
 	// Add item to cart
 	const addToCart = (key) => {
@@ -84,6 +85,7 @@ const CartContextProvider = ({ children }) => {
 				deleteItem,
 				clearCart,
 				getTotalItems,
+				refreshProducts: fetchProducts,
 			}}>
 			{children}
 		</CartContext.Provider>

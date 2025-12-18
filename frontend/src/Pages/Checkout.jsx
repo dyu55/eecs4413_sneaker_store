@@ -30,7 +30,7 @@ const loadPaymentGuard = () => {
 };
 
 const Checkout = () => {
-	const { cartProductList, getTotalItems, clearCart } = useCart();
+	const { cartProductList, getTotalItems, clearCart, refreshProducts } = useCart();
 	const navigate = useNavigate();
 
 	const [user, setUser] = useState(null);
@@ -276,6 +276,9 @@ const Checkout = () => {
 			setCheckoutCompleted(true);
 			showSuccess(`Order ${orderDetails.orderNumber} successfully placed! Redirecting to confirmation...`);
 			clearCart();
+			if (typeof refreshProducts === 'function') {
+				refreshProducts();
+			}
 			navigate('/order-success', { state: { order: orderDetails } });
 		} catch (err) {
 			showError('Failed to place order. Please try again.');

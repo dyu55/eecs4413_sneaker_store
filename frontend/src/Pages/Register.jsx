@@ -19,6 +19,17 @@ const Register = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [errorMessage, setErrorMessage] = useState('');
+	const [successMessage, setSuccessMessage] = useState('');
+
+	const showError = (message) => {
+		setErrorMessage(message);
+		setSuccessMessage('');
+	};
+
+	const showSuccess = (message) => {
+		setSuccessMessage(message);
+		setErrorMessage('');
+	};
 
 	const REQUIRED_FIELDS = {
 		firstName: 'First Name',
@@ -44,17 +55,18 @@ const Register = () => {
 			.map(([, label]) => label);
 
 		if (missingFields.length > 0) {
-			setErrorMessage(`Please fill in: ${missingFields.join(', ')}`);
+			showError(`Please fill in: ${missingFields.join(', ')}`);
 			return;
 		}
 
 		setErrorMessage('');
+		setSuccessMessage('');
 		try {
 			const response = await AuthService.registerUser(formData);
 			if (response.success) {
 				const redirectTo = location.state?.from;
 				if (redirectTo) {
-					alert('Registration successful! Logging you in...');
+					showSuccess('Registration successful! Logging you in...');
 					try {
 						const loginResponse = await AuthService.loginUser({ email: formData.email, password: formData.password });
 						if (loginResponse.token && loginResponse.customerId) {
@@ -63,16 +75,18 @@ const Register = () => {
 						}
 					} catch (loginErr) {
 						console.error('Auto login failed after registration', loginErr);
+						showError('Registered, but auto login failed. Please log in manually.');
 					}
 				}
-				alert('Registration successful!');
+				showSuccess('Registration successful! Please log in.');
 				navigate('/login');
 			} else {
-				alert(response.message || 'Registration failed');
+				showError(response.message || 'Registration failed.');
 			}
 		} catch (err) {
-			alert('Registration failed. Please try again.');
 			console.error(err);
+			const backendMessage = err?.response?.data?.message;
+			showError(backendMessage || 'Registration failed. Please try again.');
 		}
 	};
 
@@ -95,6 +109,9 @@ const Register = () => {
 				<form onSubmit={handleSubmit} className={formGrid}>
 					{errorMessage && (
 						<p className={`${fullWidth} text-red-600 text-sm`}>{errorMessage}</p>
+					)}
+					{successMessage && (
+						<p className={`${fullWidth} text-green-700 text-sm`}>{successMessage}</p>
 					)}
 					<div className={formGroup}>
 						<label className={labelClass}>First Name</label>

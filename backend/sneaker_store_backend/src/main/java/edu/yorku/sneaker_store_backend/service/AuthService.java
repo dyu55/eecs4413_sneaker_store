@@ -257,16 +257,6 @@ public class AuthService {
                 .customerId(customer.getId())
                 .token(generateToken())
                 .role(customer.getRole())
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .email(customer.getEmail())
-                .phoneNumber(customer.getPhoneNumber())
-                .addressLine1(customer.getAddressLine1())
-                .addressLine2(customer.getAddressLine2())
-                .city(customer.getCity())
-                .province(customer.getProvince())
-                .postalCode(customer.getPostalCode())
-                .country(customer.getCountry())
                 .build();
     }
 

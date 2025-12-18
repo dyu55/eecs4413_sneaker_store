@@ -71,9 +71,9 @@ const LoginSignup = () => {
 
 					<p className="text-center text-sm mt-4">
 						Not a member?{' '}
-						<span
-							className="text-brand-accent font-semibold cursor-pointer hover:underline"
-						onClick={() => navigate('/register')}
+					<span
+						className="text-brand-accent font-semibold cursor-pointer hover:underline"
+						onClick={() => navigate('/register', { state: location.state })}
 					>
 						Sign Up
 					</span>

@@ -2,7 +2,7 @@ USE sneaker_store;
 
 -- Seed customers (two fully populated example customers)
 INSERT INTO customers (
-    first_name, last_name, email, password_hash,
+    first_name, last_name, email, role, password_hash,
     phone_number, address_line1, address_line2,
     city, province, postal_code, country,
     billing_address_line1, billing_address_line2, billing_city,
@@ -10,27 +10,27 @@ INSERT INTO customers (
     credit_card_holder, credit_card_number, credit_card_expiry, credit_card_cvv
 )
 VALUES
-('Alice','Wong','alice@example.com','$2a$10$fakehash1','416-555-0001','123 King St','Unit 905','Toronto','ON','M5H1A1','Canada',
+('Alice','Wong','alice@example.com','CUSTOMER','$2a$10$fakehash1','416-555-0001','123 King St','Unit 905','Toronto','ON','M5H1A1','Canada',
  '123 King St','Unit 905','Toronto','ON','M5H1A1','Canada','Alice Wong','4111111111111111','12/28','101'),
-('Bob','Chen','bob@example.com','$2a$10$fakehash2','647-555-0002','456 Queen St','Apt 1203','Markham','ON','L3R2Y8','Canada',
+('Bob','Chen','bob@example.com','CUSTOMER','$2a$10$fakehash2','647-555-0002','456 Queen St','Apt 1203','Markham','ON','L3R2Y8','Canada',
  '456 Queen St','Apt 1203','Markham','ON','L3R2Y8','Canada','Bob Chen','5555444433332222','11/27','202'),
-('Chris','Lee','chris@example.com','$2a$10$fakehash3','416-555-0003','89 Yonge St',NULL,'Toronto','ON','M5E1A1','Canada',
+('Chris','Lee','chris@example.com','CUSTOMER','$2a$10$fakehash3','416-555-0003','89 Yonge St',NULL,'Toronto','ON','M5E1A1','Canada',
  '100 Front St',NULL,'Toronto','ON','M5J1E3','Canada','Chris Lee','4000123412341234','10/26','303'),
-('Diana','Xu','diana@example.com','$2a$10$fakehash4','416-555-0004','12 Bay St','Suite 400','Toronto','ON','M5J2X2','Canada',
+('Diana','Xu','diana@example.com','CUSTOMER','$2a$10$fakehash4','416-555-0004','12 Bay St','Suite 400','Toronto','ON','M5J2X2','Canada',
  '12 Bay St','Suite 400','Toronto','ON','M5J2X2','Canada','Diana Xu','6011000990139424','03/29','404'),
-('Evan','Park','evan@example.com','$2a$10$fakehash5','647-555-0005','77 Finch Ave',NULL,'North York','ON','M2N6Z8','Canada',
+('Evan','Park','evan@example.com','CUSTOMER','$2a$10$fakehash5','647-555-0005','77 Finch Ave',NULL,'North York','ON','M2N6Z8','Canada',
  '500 Bayview Ave',NULL,'Toronto','ON','M2L1B4','Canada','Evan Park','378282246310005','07/27','123'),
-('Fiona','Li','fiona@example.com','$2a$10$fakehash6','416-555-0006','33 Bloor St','Unit 210','Toronto','ON','M4W1A9','Canada',
+('Fiona','Li','fiona@example.com','CUSTOMER','$2a$10$fakehash6','416-555-0006','33 Bloor St','Unit 210','Toronto','ON','M4W1A9','Canada',
  '33 Bloor St','Unit 210','Toronto','ON','M4W1A9','Canada','Fiona Li','3530111333300000','08/28','456'),
-('George','Zhao','george@example.com','$2a$10$fakehash7','647-555-0007','9 Highway 7',NULL,'Richmond Hill','ON','L4B3P4','Canada',
+('George','Zhao','george@example.com','CUSTOMER','$2a$10$fakehash7','647-555-0007','9 Highway 7',NULL,'Richmond Hill','ON','L4B3P4','Canada',
  '88 Leslie St',NULL,'Richmond Hill','ON','L4S1N2','Canada','George Zhao','4000000000000002','09/26','789'),
-('Helen','Sun','helen@example.com','$2a$10$fakehash8','416-555-0008','101 College St',NULL,'Toronto','ON','M5G1L7','Canada',
+('Helen','Sun','helen@example.com','CUSTOMER','$2a$10$fakehash8','416-555-0008','101 College St',NULL,'Toronto','ON','M5G1L7','Canada',
  '101 College St',NULL,'Toronto','ON','M5G1L7','Canada','Helen Sun','4242424242424242','04/30','321'),
-('Ian','Kim','ian@example.com','$2a$10$fakehash9','647-555-0009','55 Sheppard Ave','Unit 1601','Toronto','ON','M2N2Z8','Canada',
+('Ian','Kim','ian@example.com','CUSTOMER','$2a$10$fakehash9','647-555-0009','55 Sheppard Ave','Unit 1601','Toronto','ON','M2N2Z8','Canada',
  '55 Sheppard Ave','Unit 1601','Toronto','ON','M2N2Z8','Canada','Ian Kim','5105105105105100','05/27','654'),
-('Jenny','Liu','jenny@example.com','$2a$10$fakehash10','416-555-0010','88 Dundas St',NULL,'Toronto','ON','M5B1C6','Canada',
+('Jenny','Liu','jenny@example.com','CUSTOMER','$2a$10$fakehash10','416-555-0010','88 Dundas St',NULL,'Toronto','ON','M5B1C6','Canada',
  '88 Dundas St',NULL,'Toronto','ON','M5B1C6','Canada','Jenny Liu','6011111111111117','06/28','987'),
-('Demo','Admin','demo@sneakerstore.test','$2a$10$/LXMcAkFlRLbDiJRO8/ec.qezdwVK65W2yV3IJsN1hq3umU7MvpsO','000-000-0000','1 Admin Way',NULL,'Toronto','ON','M1M1M1','Canada',
+('Demo','Admin','demo@sneakerstore.test','ADMIN','$2a$10$/LXMcAkFlRLbDiJRO8/ec.qezdwVK65W2yV3IJsN1hq3umU7MvpsO','000-000-0000','1 Admin Way',NULL,'Toronto','ON','M1M1M1','Canada',
  '1 Admin Way',NULL,'Toronto','ON','M1M1M1','Canada','Demo Admin','4242424242424242','12/30','111');
 -- Seed products
 INSERT INTO products (sku, name, brand, description, price, stock_quantity, image_url)
