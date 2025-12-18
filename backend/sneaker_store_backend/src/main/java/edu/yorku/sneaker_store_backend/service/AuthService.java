@@ -1,6 +1,7 @@
 package edu.yorku.sneaker_store_backend.service;
 
 import edu.yorku.sneaker_store_backend.dto.AuthResponseDto;
+import edu.yorku.sneaker_store_backend.dto.ChangePasswordRequestDto;
 import edu.yorku.sneaker_store_backend.dto.CustomerProfileDto;
 import edu.yorku.sneaker_store_backend.dto.LoginRequestDto;
 import edu.yorku.sneaker_store_backend.dto.RegisterRequestDto;
@@ -52,6 +53,16 @@ public class AuthService {
                 .province(request.getProvince())
                 .postalCode(request.getPostalCode())
                 .country(request.getCountry())
+                .billingAddressLine1(defaultValue(request.getBillingAddressLine1(), request.getAddressLine1()))
+                .billingAddressLine2(defaultValue(request.getBillingAddressLine2(), request.getAddressLine2()))
+                .billingCity(defaultValue(request.getBillingCity(), request.getCity()))
+                .billingProvince(defaultValue(request.getBillingProvince(), request.getProvince()))
+                .billingPostalCode(defaultValue(request.getBillingPostalCode(), request.getPostalCode()))
+                .billingCountry(defaultValue(request.getBillingCountry(), request.getCountry()))
+                .creditCardHolder(request.getCreditCardHolder())
+                .creditCardNumber(request.getCreditCardNumber())
+                .creditCardExpiry(request.getCreditCardExpiry())
+                .creditCardCvv(request.getCreditCardCvv())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .build();
 
@@ -136,9 +147,69 @@ public class AuthService {
         if (request.getCountry() != null) {
             customer.setCountry(request.getCountry());
         }
+        if (request.getBillingAddressLine1() != null) {
+            customer.setBillingAddressLine1(request.getBillingAddressLine1());
+        }
+        if (request.getBillingAddressLine2() != null) {
+            customer.setBillingAddressLine2(request.getBillingAddressLine2());
+        }
+        if (request.getBillingCity() != null) {
+            customer.setBillingCity(request.getBillingCity());
+        }
+        if (request.getBillingProvince() != null) {
+            customer.setBillingProvince(request.getBillingProvince());
+        }
+        if (request.getBillingPostalCode() != null) {
+            customer.setBillingPostalCode(request.getBillingPostalCode());
+        }
+        if (request.getBillingCountry() != null) {
+            customer.setBillingCountry(request.getBillingCountry());
+        }
+        if (request.getCreditCardHolder() != null) {
+            customer.setCreditCardHolder(request.getCreditCardHolder());
+        }
+        if (request.getCreditCardNumber() != null) {
+            customer.setCreditCardNumber(request.getCreditCardNumber());
+        }
+        if (request.getCreditCardExpiry() != null) {
+            customer.setCreditCardExpiry(request.getCreditCardExpiry());
+        }
+        if (request.getCreditCardCvv() != null) {
+            customer.setCreditCardCvv(request.getCreditCardCvv());
+        }
 
         Customer saved = customerRepository.save(customer);
         return successResponse(saved, "Profile updated successfully");
+    }
+
+    /**
+     * Allows customers to change their password without editing profile fields.
+     */
+    public AuthResponseDto changePassword(ChangePasswordRequestDto request) {
+        if (request.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID is required");
+        }
+        if (!hasText(request.getCurrentPassword()) || !hasText(request.getNewPassword())) {
+            throw new IllegalArgumentException("Current and new password are required");
+        }
+        if (request.getNewPassword().equals(request.getCurrentPassword())) {
+            throw new IllegalArgumentException("New password must be different from current password");
+        }
+        if (hasText(request.getConfirmNewPassword())
+                && !request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new IllegalArgumentException("New password and confirmation do not match");
+        }
+
+        Customer customer = customerRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), customer.getPasswordHash())) {
+            throw new SecurityException("Invalid current password");
+        }
+
+        customer.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        Customer saved = customerRepository.save(customer);
+        return successResponse(saved, "Password updated successfully");
     }
 
     /**
@@ -165,6 +236,16 @@ public class AuthService {
                 .province(customer.getProvince())
                 .postalCode(customer.getPostalCode())
                 .country(customer.getCountry())
+                .billingAddressLine1(customer.getBillingAddressLine1())
+                .billingAddressLine2(customer.getBillingAddressLine2())
+                .billingCity(customer.getBillingCity())
+                .billingProvince(customer.getBillingProvince())
+                .billingPostalCode(customer.getBillingPostalCode())
+                .billingCountry(customer.getBillingCountry())
+                .creditCardHolder(customer.getCreditCardHolder())
+                .creditCardNumber(customer.getCreditCardNumber())
+                .creditCardExpiry(customer.getCreditCardExpiry())
+                .creditCardCvv(customer.getCreditCardCvv())
                 .build();
     }
 
@@ -183,5 +264,9 @@ public class AuthService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private String defaultValue(String candidate, String fallback) {
+        return hasText(candidate) ? candidate : fallback;
     }
 }

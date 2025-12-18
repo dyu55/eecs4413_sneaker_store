@@ -41,6 +41,16 @@ public class CustomerAdminService {
         existing.setProvince(payload.getProvince());
         existing.setPostalCode(payload.getPostalCode());
         existing.setCountry(payload.getCountry());
+        existing.setBillingAddressLine1(payload.getBillingAddressLine1());
+        existing.setBillingAddressLine2(payload.getBillingAddressLine2());
+        existing.setBillingCity(payload.getBillingCity());
+        existing.setBillingProvince(payload.getBillingProvince());
+        existing.setBillingPostalCode(payload.getBillingPostalCode());
+        existing.setBillingCountry(payload.getBillingCountry());
+        existing.setCreditCardHolder(payload.getCreditCardHolder());
+        existing.setCreditCardNumber(payload.getCreditCardNumber());
+        existing.setCreditCardExpiry(payload.getCreditCardExpiry());
+        existing.setCreditCardCvv(payload.getCreditCardCvv());
         if (payload.getPasswordHash() != null && !payload.getPasswordHash().isBlank()) {
             existing.setPasswordHash(payload.getPasswordHash());
         }

@@ -58,6 +58,10 @@ public class Sneaker {
      */
     private Integer stock;
 
+    private String category;
+
+    private String genre;
+
     /**
      * Available shoe sizes for this sneaker (e.g., "8", "9.5").
      */

@@ -2,6 +2,9 @@ package edu.yorku.sneaker_store_backend.service;
 
 import edu.yorku.sneaker_store_backend.model.Sneaker;
 import edu.yorku.sneaker_store_backend.repository.SneakerRepository;
+import edu.yorku.sneaker_store_backend.service.dto.SneakerQueryParams;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,30 +39,44 @@ public class SneakerService {
     /**
      * Searches sneakers by keyword. If keyword is empty, returns all sneakers.
      */
-    public List<Sneaker> searchByKeyword(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return findAll();
+    public List<Sneaker> find(SneakerQueryParams params) {
+        Specification<Sneaker> spec = Specification.where(null);
+
+        if (!isBlank(params.getKeyword())) {
+            String keyword = params.getKeyword().toLowerCase();
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + keyword + "%"));
         }
-        return sneakerRepository.findByNameContainingIgnoreCase(keyword);
+        if (!isBlank(params.getBrand())) {
+            spec = spec.and((root, query, cb) -> cb.equal(cb.lower(root.get("brand")), params.getBrand().toLowerCase()));
+        }
+        if (!isBlank(params.getColorway())) {
+            spec = spec.and((root, query, cb) -> cb.equal(cb.lower(root.get("colorway")), params.getColorway().toLowerCase()));
+        }
+        if (!isBlank(params.getCategory())) {
+            spec = spec.and((root, query, cb) -> cb.equal(cb.lower(root.get("category")), params.getCategory().toLowerCase()));
+        }
+        if (!isBlank(params.getGenre())) {
+            spec = spec.and((root, query, cb) -> cb.equal(cb.lower(root.get("genre")), params.getGenre().toLowerCase()));
+        }
+
+        Sort sort = resolveSort(params.getSortBy(), params.getSortDirection());
+        return sneakerRepository.findAll(spec, sort);
     }
 
-    /**
-     * Applies optional filters for brand, colorway, and keyword.
-     */
-    public List<Sneaker> filter(String brand, String colorway, String keyword) {
-        List<Sneaker> base = searchByKeyword(keyword);
-
-        return base.stream()
-                .filter(s -> isBlank(brand) || equalsIgnoreCase(s.getBrand(), brand))
-                .filter(s -> isBlank(colorway) || equalsIgnoreCase(s.getColorway(), colorway))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns sneakers filtered by brand.
-     */
     public List<Sneaker> findByBrand(String brand) {
         return sneakerRepository.findByBrandIgnoreCase(brand);
+    }
+
+    private Sort resolveSort(String sortBy, String direction) {
+        if (isBlank(sortBy)) {
+            return Sort.by("name").ascending();
+        }
+        Sort.Direction dir = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return switch (sortBy.toLowerCase()) {
+            case "price" -> Sort.by(dir, "price");
+            case "name" -> Sort.by(dir, "name");
+            default -> Sort.by(dir, "name");
+        };
     }
 
     /**
@@ -103,7 +120,4 @@ public class SneakerService {
         return value == null || value.isBlank();
     }
 
-    private boolean equalsIgnoreCase(String value, String target) {
-        return value != null && value.equalsIgnoreCase(target);
-    }
 }

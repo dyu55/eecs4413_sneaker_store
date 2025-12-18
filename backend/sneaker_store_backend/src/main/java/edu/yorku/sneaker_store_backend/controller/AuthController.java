@@ -1,6 +1,7 @@
 package edu.yorku.sneaker_store_backend.controller;
 
 import edu.yorku.sneaker_store_backend.dto.AuthResponseDto;
+import edu.yorku.sneaker_store_backend.dto.ChangePasswordRequestDto;
 import edu.yorku.sneaker_store_backend.dto.CustomerProfileDto;
 import edu.yorku.sneaker_store_backend.dto.LoginRequestDto;
 import edu.yorku.sneaker_store_backend.dto.RegisterRequestDto;
@@ -90,6 +91,25 @@ public class AuthController {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(failure("Unable to update profile"));
+        }
+    }
+
+    /**
+     * PUT /api/auth/password
+     * <p>
+     * Allows customers to change their password by supplying their current password and a new one.
+     */
+    @PutMapping("/password")
+    public ResponseEntity<AuthResponseDto> changePassword(@RequestBody ChangePasswordRequestDto request) {
+        try {
+            return ResponseEntity.ok(authService.changePassword(request));
+        } catch (SecurityException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(failure(ex.getMessage()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(failure(ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(failure("Unable to change password"));
         }
     }
 

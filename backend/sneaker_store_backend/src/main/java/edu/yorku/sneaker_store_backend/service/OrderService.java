@@ -2,10 +2,13 @@ package edu.yorku.sneaker_store_backend.service;
 
 import edu.yorku.sneaker_store_backend.model.Order;
 import edu.yorku.sneaker_store_backend.repository.OrderRepository;
+import edu.yorku.sneaker_store_backend.service.dto.OrderQueryParams;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Provides read-only access to order history for both customers and administrators.
@@ -20,22 +23,33 @@ public class OrderService {
     }
 
     /**
-     * Retrieves order history. If {@code customerId} is provided the result is scoped to that
-     * customer, otherwise all orders are returned (for admin dashboards). Optional status filtering
-     * can be applied by passing an {@link Order.OrderStatus} value.
+     * Retrieves order history with optional filtering by customer, status, product, and date range.
      */
-    public List<Order> listOrders(Long customerId, Order.OrderStatus status) {
-        List<Order> base = (customerId != null)
-                ? orderRepository.findByCustomerId(customerId)
-                : orderRepository.findAll();
+    public List<Order> listOrders(OrderQueryParams params) {
+        Specification<Order> spec = (root, query, cb) -> cb.conjunction();
 
-        if (status == null) {
-            return base;
+        if (params.getCustomerId() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("customer").get("id"), params.getCustomerId()));
+        }
+        if (params.getStatus() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), Order.OrderStatus.valueOf(params.getStatus().name())));
+        }
+        if (params.getProductId() != null) {
+            spec = spec.and((root, query, cb) -> {
+                var join = root.join("items");
+                return cb.equal(join.get("product").get("id"), params.getProductId());
+            });
+        }
+        if (params.getDateFrom() != null) {
+            LocalDateTime start = params.getDateFrom().atStartOfDay();
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("orderDate"), start));
+        }
+        if (params.getDateTo() != null) {
+            LocalDateTime end = params.getDateTo().atTime(LocalTime.MAX);
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("orderDate"), end));
         }
 
-        return base.stream()
-                .filter(order -> order.getStatus() == status)
-                .collect(Collectors.toList());
+        return orderRepository.findAll(spec);
     }
 
     /**

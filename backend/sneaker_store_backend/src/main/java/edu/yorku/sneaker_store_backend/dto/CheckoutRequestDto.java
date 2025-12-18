@@ -25,4 +25,8 @@ public class CheckoutRequestDto {
     private String billingAddress;
 
     private String paymentMethod;
+
+    private String paymentToken;
+
+    private boolean useSavedInfo;
 }

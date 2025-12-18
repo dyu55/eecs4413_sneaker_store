@@ -25,7 +25,17 @@ CREATE TABLE IF NOT EXISTS customers (
     city          VARCHAR(100),
     province      VARCHAR(100),
     postal_code   VARCHAR(20),
-    country       VARCHAR(100)
+    country       VARCHAR(100),
+    billing_address_line1 VARCHAR(255),
+    billing_address_line2 VARCHAR(255),
+    billing_city          VARCHAR(100),
+    billing_province      VARCHAR(100),
+    billing_postal_code   VARCHAR(20),
+    billing_country       VARCHAR(100),
+    credit_card_holder    VARCHAR(255),
+    credit_card_number    VARCHAR(64),
+    credit_card_expiry    VARCHAR(10),
+    credit_card_cvv       VARCHAR(10)
 );
 
 -- 2) Products
@@ -48,6 +58,8 @@ CREATE TABLE IF NOT EXISTS sneakers (
     colorway    VARCHAR(255),
     price       DECIMAL(10,2) NOT NULL,
     stock       INT,
+    category    VARCHAR(100),
+    genre       VARCHAR(100),
     description VARCHAR(1000),
     image_url   VARCHAR(500)
 );

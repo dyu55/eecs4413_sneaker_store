@@ -30,15 +30,18 @@ public class CheckoutService {
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
     private final InventoryHistoryService inventoryHistoryService;
+    private final CartService cartService;
 
     public CheckoutService(ProductRepository productRepository,
                            CustomerRepository customerRepository,
                            OrderRepository orderRepository,
-                           InventoryHistoryService inventoryHistoryService) {
+                           InventoryHistoryService inventoryHistoryService,
+                           CartService cartService) {
         this.productRepository = productRepository;
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
         this.inventoryHistoryService = inventoryHistoryService;
+        this.cartService = cartService;
     }
 
     /**
@@ -65,12 +68,16 @@ public class CheckoutService {
             throw new IllegalArgumentException("Checkout request must include items");
         }
 
+        if (!hasText(request.getPaymentMethod())) {
+            throw new IllegalArgumentException("Payment method is required");
+        }
+
         Order order = Order.builder()
                 .orderNumber(generateOrderNumber())
                 .customer(customer)
                 .orderDate(LocalDateTime.now())
                 .status(Order.OrderStatus.PENDING)
-                .shippingAddress(resolveAddress(request.getShippingAddress(), customer))
+                .shippingAddress(resolveShippingAddress(request, customer))
                 .billingAddress(resolveBillingAddress(request, customer))
                 .totalAmount(BigDecimal.ZERO)
                 .build();
@@ -94,6 +101,8 @@ public class CheckoutService {
         productRepository.saveAll(updatedProducts);
         Order savedOrder = orderRepository.save(order);
 
+        String paymentMessage = simulatePayment(request);
+
         saleAdjustments.forEach(adj ->
                 inventoryHistoryService.recordSale(
                         adj.product(),
@@ -103,13 +112,15 @@ public class CheckoutService {
                         savedOrder.getId()
                 ));
 
+        cartService.clearCart(customer.getId());
+
         return CheckoutResponseDto.builder()
                 .orderId(savedOrder.getId())
                 .orderNumber(savedOrder.getOrderNumber())
                 .status(savedOrder.getStatus().name())
                 .totalAmount(savedOrder.getTotalAmount())
                 .items(mapToDto(savedOrder.getItems()))
-                .message("Checkout processed successfully")
+                .message(paymentMessage)
                 .build();
     }
 
@@ -155,18 +166,24 @@ public class CheckoutService {
         throw new IllegalArgumentException("Product reference missing for checkout item");
     }
 
-    private String resolveAddress(String provided, Customer customer) {
-        if (hasText(provided)) {
-            return provided;
+    private String resolveShippingAddress(CheckoutRequestDto request, Customer customer) {
+        if (request.isUseSavedInfo() && hasText(customer.getAddressLine1())) {
+            return formatAddress(customer);
+        }
+        if (hasText(request.getShippingAddress())) {
+            return request.getShippingAddress();
         }
         return formatAddress(customer);
     }
 
     private String resolveBillingAddress(CheckoutRequestDto request, Customer customer) {
+        if (request.isUseSavedInfo() && hasText(customer.getBillingAddressLine1())) {
+            return formatBillingAddress(customer);
+        }
         if (hasText(request.getBillingAddress())) {
             return request.getBillingAddress();
         }
-        return resolveAddress(request.getShippingAddress(), customer);
+        return formatAddress(customer);
     }
 
     private String formatAddress(Customer customer) {
@@ -192,6 +209,30 @@ public class CheckoutService {
         return String.join(", ", parts);
     }
 
+    private String formatBillingAddress(Customer customer) {
+        List<String> parts = new ArrayList<>();
+        if (hasText(customer.getBillingAddressLine1())) {
+            parts.add(customer.getBillingAddressLine1());
+        }
+        if (hasText(customer.getBillingAddressLine2())) {
+            parts.add(customer.getBillingAddressLine2());
+        }
+        if (hasText(customer.getBillingCity())) {
+            parts.add(customer.getBillingCity());
+        }
+        if (hasText(customer.getBillingProvince())) {
+            parts.add(customer.getBillingProvince());
+        }
+        if (hasText(customer.getBillingPostalCode())) {
+            parts.add(customer.getBillingPostalCode());
+        }
+        if (hasText(customer.getBillingCountry())) {
+            parts.add(customer.getBillingCountry());
+        }
+        return String.join(", ", parts);
+    }
+
+
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
@@ -211,6 +252,13 @@ public class CheckoutService {
                         .unitPrice(item.getUnitPrice())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private String simulatePayment(CheckoutRequestDto request) {
+        if ("decline".equalsIgnoreCase(request.getPaymentToken())) {
+            throw new IllegalStateException("Credit Card Authorization Failed");
+        }
+        return "Payment authorized";
     }
 
     private String normalizeSize(String size) {

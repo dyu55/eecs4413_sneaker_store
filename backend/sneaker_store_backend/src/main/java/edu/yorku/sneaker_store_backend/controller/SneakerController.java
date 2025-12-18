@@ -2,6 +2,7 @@ package edu.yorku.sneaker_store_backend.controller;
 
 import edu.yorku.sneaker_store_backend.model.Sneaker;
 import edu.yorku.sneaker_store_backend.service.SneakerService;
+import edu.yorku.sneaker_store_backend.service.dto.SneakerQueryParams;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,21 +27,25 @@ public class SneakerController {
      * Retrieves a list of all sneakers.
      */
     @GetMapping
-    public List<Sneaker> getAll() {
-        return sneakerService.findAll();
-    }
-
-    /**
-     * GET /api/sneakers/filter
-     * Applies optional filters for brand, colorway, and keyword.
-     */
-    @GetMapping("/filter")
-    public List<Sneaker> filter(
+    public List<Sneaker> list(
+            @RequestParam(name = "q", required = false) String keyword,
             @RequestParam(name = "brand", required = false) String brand,
             @RequestParam(name = "colorway", required = false) String colorway,
-            @RequestParam(name = "q", required = false) String keyword
+            @RequestParam(name = "category", required = false) String category,
+            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "sortBy", required = false) String sortBy,
+            @RequestParam(name = "direction", required = false) String direction
     ) {
-        return sneakerService.filter(brand, colorway, keyword);
+        SneakerQueryParams params = SneakerQueryParams.builder()
+                .keyword(keyword)
+                .brand(brand)
+                .colorway(colorway)
+                .category(category)
+                .genre(genre)
+                .sortBy(sortBy)
+                .sortDirection(direction)
+                .build();
+        return sneakerService.find(params);
     }
 
     /**
@@ -54,15 +59,6 @@ public class SneakerController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(sneaker);
-    }
-
-    /**
-     * GET /api/sneakers/search?q=keyword
-     * Searches sneakers by keyword in name.
-     */
-    @GetMapping("/search")
-    public List<Sneaker> search(@RequestParam(name = "q", required = false) String keyword) {
-        return sneakerService.searchByKeyword(keyword);
     }
 
     /**

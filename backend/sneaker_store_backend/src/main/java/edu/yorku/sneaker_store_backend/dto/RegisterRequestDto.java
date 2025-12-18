@@ -35,4 +35,24 @@ public class RegisterRequestDto {
     private String postalCode;
 
     private String country;
+
+    private String billingAddressLine1;
+
+    private String billingAddressLine2;
+
+    private String billingCity;
+
+    private String billingProvince;
+
+    private String billingPostalCode;
+
+    private String billingCountry;
+
+    private String creditCardHolder;
+
+    private String creditCardNumber;
+
+    private String creditCardExpiry;
+
+    private String creditCardCvv;
 }

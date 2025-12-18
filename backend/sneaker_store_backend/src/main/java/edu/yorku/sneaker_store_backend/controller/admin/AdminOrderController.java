@@ -2,6 +2,7 @@ package edu.yorku.sneaker_store_backend.controller.admin;
 
 import edu.yorku.sneaker_store_backend.model.Order;
 import edu.yorku.sneaker_store_backend.service.OrderService;
+import edu.yorku.sneaker_store_backend.service.dto.OrderQueryParams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +30,16 @@ public class AdminOrderController {
      * Query params: <code>status</code> (optional). Used by admin dashboards to review sales history.
      */
     @GetMapping
-    public ResponseEntity<?> listOrders(@RequestParam(name = "status", required = false) String status) {
+    public ResponseEntity<?> listOrders(
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "customerId", required = false) Long customerId,
+            @RequestParam(name = "productId", required = false) Long productId,
+            @RequestParam(name = "dateFrom", required = false) String dateFrom,
+            @RequestParam(name = "dateTo", required = false) String dateTo
+    ) {
         try {
-            Order.OrderStatus parsedStatus = parseStatus(status);
-            List<Order> orders = orderService.listOrders(null, parsedStatus);
+            OrderQueryParams params = toParams(customerId, status, productId, dateFrom, dateTo);
+            List<Order> orders = orderService.listOrders(params);
             return ResponseEntity.ok(orders);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
@@ -71,6 +78,40 @@ public class AdminOrderController {
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+        }
+    }
+
+    private OrderQueryParams toParams(Long customerId,
+                                      String status,
+                                      Long productId,
+                                      String dateFrom,
+                                      String dateTo) {
+        OrderQueryParams.OrderStatus parsedStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                parsedStatus = OrderQueryParams.OrderStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Invalid order status: " + status);
+            }
+        }
+
+        return OrderQueryParams.builder()
+                .customerId(customerId)
+                .status(parsedStatus)
+                .productId(productId)
+                .dateFrom(parseDate(dateFrom))
+                .dateTo(parseDate(dateTo))
+                .build();
+    }
+
+    private java.time.LocalDate parseDate(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return java.time.LocalDate.parse(value);
+        } catch (java.time.format.DateTimeParseException ex) {
+            throw new IllegalArgumentException("Invalid date format (expected yyyy-MM-dd): " + value);
         }
     }
 
