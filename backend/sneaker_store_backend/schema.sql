@@ -1,6 +1,17 @@
 CREATE DATABASE IF NOT EXISTS sneaker_store;
 USE sneaker_store;
 
+-- Drop existing tables so repeated executions keep the schema in sync
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS carts;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS sneaker_sizes;
+DROP TABLE IF EXISTS inventory_events;
+DROP TABLE IF EXISTS sneakers;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS customers;
+
 -- 1) Customers
 CREATE TABLE IF NOT EXISTS customers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -100,5 +111,19 @@ CREATE TABLE IF NOT EXISTS cart_items (
     CONSTRAINT fk_cart_items_product
         FOREIGN KEY (product_id) REFERENCES products(id)
 );
-
-
+-- 8) Inventory events for admin history views
+CREATE TABLE IF NOT EXISTS inventory_events (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id     BIGINT      NOT NULL,
+    type           VARCHAR(32) NOT NULL,
+    event_time     DATETIME    NOT NULL,
+    quantity_delta INT,
+    previous_stock INT,
+    new_stock      INT,
+    previous_price DECIMAL(10,2),
+    new_price      DECIMAL(10,2),
+    order_id       BIGINT,
+    note           VARCHAR(255),
+    CONSTRAINT fk_inventory_events_product
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
