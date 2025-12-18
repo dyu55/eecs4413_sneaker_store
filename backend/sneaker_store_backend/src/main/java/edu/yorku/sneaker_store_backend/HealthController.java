@@ -12,4 +12,10 @@ public class HealthController {
     public String health() {
         return "OK";
     }
+    
+    @GetMapping("/")
+    public String home() {
+        return "Sneaker Store backend is running.";
+    }
 }
+
