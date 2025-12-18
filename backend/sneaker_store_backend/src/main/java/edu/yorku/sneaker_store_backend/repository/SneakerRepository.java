@@ -5,19 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-/**
- * Repository interface for Sneaker entities.
- * Extends JpaRepository to provide CRUD database operations.
- */
 public interface SneakerRepository extends JpaRepository<Sneaker, Long> {
-
-    /**
-     * Finds sneakers by brand name (case-insensitive).
-     */
-    List<Sneaker> findByBrandIgnoreCase(String brand);
-
-    /**
-     * Searches sneakers whose names contain a keyword (case-insensitive).
-     */
+    List<Sneaker> findByBrand(String brand);
+    List<Sneaker> findByCategory(String category);
     List<Sneaker> findByNameContainingIgnoreCase(String keyword);
 }
