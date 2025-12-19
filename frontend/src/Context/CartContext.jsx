@@ -15,7 +15,7 @@ export const useCart = () => useContext(CartContext);
 const CUSTOMER_ID = 'guest';
 
 const CartContextProvider = ({ children }) => {
-
+git
   const [allProduct, setAllProduct] = useState([]);
   const [cart, setCart] = useState({});
 
