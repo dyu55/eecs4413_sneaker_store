@@ -45,6 +45,7 @@ public class Customer {
     /**
      * Role of the account (e.g., CUSTOMER, ADMIN).
      */
+    @Builder.Default
     @Column(nullable = false)
     private String role = "CUSTOMER";
 

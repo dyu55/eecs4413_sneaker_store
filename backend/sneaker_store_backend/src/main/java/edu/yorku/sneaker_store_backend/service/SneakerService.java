@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class SneakerService {
      * Searches sneakers by keyword. If keyword is empty, returns all sneakers.
      */
     public List<Sneaker> find(SneakerQueryParams params) {
-        Specification<Sneaker> spec = Specification.where(null);
+        Specification<Sneaker> spec = Specification.anyOf();
 
         if (!isBlank(params.getKeyword())) {
             String keyword = params.getKeyword().toLowerCase();
