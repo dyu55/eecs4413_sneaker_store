@@ -26,4 +26,9 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
      * Determines whether any order line references the provided product id.
      */
     boolean existsByItemsProductId(Long productId);
+
+    /**
+     * Checks if a customer has one or more orders.
+     */
+    boolean existsByCustomerId(Long customerId);
 }

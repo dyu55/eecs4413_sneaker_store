@@ -2,6 +2,7 @@ package edu.yorku.sneaker_store_backend.service;
 
 import edu.yorku.sneaker_store_backend.model.Customer;
 import edu.yorku.sneaker_store_backend.repository.CustomerRepository;
+import edu.yorku.sneaker_store_backend.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +15,12 @@ import java.util.List;
 public class CustomerAdminService {
 
     private final CustomerRepository customerRepository;
+    private final OrderRepository orderRepository;
 
-    public CustomerAdminService(CustomerRepository customerRepository) {
+    public CustomerAdminService(CustomerRepository customerRepository,
+                                OrderRepository orderRepository) {
         this.customerRepository = customerRepository;
+        this.orderRepository = orderRepository;
     }
 
     public List<Customer> listAll() {
@@ -69,6 +73,9 @@ public class CustomerAdminService {
         Customer customer = findById(id);
         if (customer != null && "ADMIN".equalsIgnoreCase(customer.getRole())) {
             throw new IllegalArgumentException("Cannot delete admin account");
+        }
+        if (orderRepository.existsByCustomerId(id)) {
+            throw new IllegalStateException("Cannot delete customer while orders exist");
         }
         customerRepository.deleteById(id);
         return true;
