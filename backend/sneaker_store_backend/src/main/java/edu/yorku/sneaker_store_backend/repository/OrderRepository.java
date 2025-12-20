@@ -21,4 +21,9 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
      * Lists all orders placed by a specific customer.
      */
     List<Order> findByCustomerId(Long customerId);
+
+    /**
+     * Determines whether any order line references the provided product id.
+     */
+    boolean existsByItemsProductId(Long productId);
 }

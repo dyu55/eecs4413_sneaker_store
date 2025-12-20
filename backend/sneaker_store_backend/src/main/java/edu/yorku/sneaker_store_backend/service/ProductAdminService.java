@@ -2,6 +2,9 @@ package edu.yorku.sneaker_store_backend.service;
 
 import edu.yorku.sneaker_store_backend.model.Product;
 import edu.yorku.sneaker_store_backend.model.Sneaker;
+import edu.yorku.sneaker_store_backend.repository.CartItemRepository;
+import edu.yorku.sneaker_store_backend.repository.InventoryEventRepository;
+import edu.yorku.sneaker_store_backend.repository.OrderRepository;
 import edu.yorku.sneaker_store_backend.repository.ProductRepository;
 import edu.yorku.sneaker_store_backend.repository.SneakerRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,13 +22,22 @@ public class ProductAdminService {
     private final ProductRepository productRepository;
     private final SneakerRepository sneakerRepository;
     private final InventoryHistoryService inventoryHistoryService;
+    private final OrderRepository orderRepository;
+    private final CartItemRepository cartItemRepository;
+    private final InventoryEventRepository inventoryEventRepository;
 
     public ProductAdminService(ProductRepository productRepository,
                                SneakerRepository sneakerRepository,
-                               InventoryHistoryService inventoryHistoryService) {
+                               InventoryHistoryService inventoryHistoryService,
+                               OrderRepository orderRepository,
+                               CartItemRepository cartItemRepository,
+                               InventoryEventRepository inventoryEventRepository) {
         this.productRepository = productRepository;
         this.sneakerRepository = sneakerRepository;
         this.inventoryHistoryService = inventoryHistoryService;
+        this.orderRepository = orderRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.inventoryEventRepository = inventoryEventRepository;
     }
 
     public List<Product> listAll() {
@@ -80,14 +92,31 @@ public class ProductAdminService {
             return false;
         }
         Product product = productRepository.findById(id).orElse(null);
+        assertProductIsRemovable(product);
         try {
-            productRepository.deleteById(id);
+            productRepository.delete(product);
         } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException("Cannot delete a product that has active orders, cart items, or inventory history.");
         }
 
         deleteMirroredSneaker(product);
         return true;
+    }
+
+    private void assertProductIsRemovable(Product product) {
+        if (product == null || product.getId() == null) {
+            return;
+        }
+        Long productId = product.getId();
+        if (orderRepository.existsByItemsProductId(productId)) {
+            throw new IllegalStateException("Cannot delete this product because existing orders reference it.");
+        }
+        if (cartItemRepository.existsByProductId(productId)) {
+            throw new IllegalStateException("Cannot delete this product because it is still present in customer carts.");
+        }
+        if (inventoryEventRepository.existsByProductId(productId)) {
+            throw new IllegalStateException("Cannot delete this product because inventory history entries reference it.");
+        }
     }
 
     private void synchronizeSneaker(Product product) {

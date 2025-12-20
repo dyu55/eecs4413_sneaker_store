@@ -11,4 +11,6 @@ import java.util.List;
 public interface InventoryEventRepository extends JpaRepository<InventoryEvent, Long> {
 
     List<InventoryEvent> findByProductIdOrderByEventTimeDesc(Long productId);
+
+    boolean existsByProductId(Long productId);
 }
