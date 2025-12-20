@@ -36,7 +36,8 @@ const AdminProduct = () => {
 	const fetchProducts = async () => {
 		try {
 			const data = await AdminProductService.listProducts();
-			setProducts(data);
+			const sorted = [...data].sort((a, b) => Number(a.id) - Number(b.id));
+			setProducts(sorted);
 		} catch (err) {
 			console.error('Failed to fetch products', err);
 		}
